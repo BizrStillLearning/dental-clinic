@@ -4,6 +4,7 @@ import (
 	"e-clinic/models"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -43,6 +44,10 @@ func (ac *AppointmentController) ProcessAppointment(c *gin.Context) {
 	}
 
 	if err := ac.DB.Create(&appointment).Error; err != nil {
+		fmt.Println("=====================================")
+		fmt.Println("DB ERROR:", err)
+		fmt.Println("=====================================")
+
 		c.HTML(http.StatusInternalServerError, "appointment.html", gin.H{
 			"error": "Gagal membuat janji temu. Silakan coba lagi.",
 		})
@@ -53,7 +58,6 @@ func (ac *AppointmentController) ProcessAppointment(c *gin.Context) {
 }
 
 func stringToUint(s string) uint {
-	var i uint
-	fmt.Sscanf(s, "%d", &i)
-	return i
+	i, _ := strconv.Atoi(s)
+	return uint(i)
 }

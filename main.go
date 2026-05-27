@@ -28,8 +28,8 @@ func seedUser(db *gorm.DB, nama, email, password, role string) {
 func main() {
 	db := config.ConnectDB()
 
-	db.AutoMigrate(&models.User{}, &models.Patient{}, &models.Appointment{})
-
+	db.AutoMigrate(&models.User{}, &models.Patient{}, &models.Appointment{}, &models.MedicalRecord{})
+	
 	var superAdmin models.User
 	if err := db.Where("email = ?", "superadmin@gmail.com").First(&superAdmin).Error; err != nil {
 		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
@@ -54,6 +54,7 @@ func main() {
 	authController := controllers.NewAuthController(db)
 	patientController := controllers.NewPatientController(db)
 	appointmentController := controllers.NewAppointmentController(db)
+	doctorController := controllers.NewDoctorController(db)
 
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html", gin.H{"title": "Login E-Clinic"})
@@ -92,9 +93,7 @@ func main() {
 			c.HTML(http.StatusOK, "admin.html", gin.H{"title": "Panel Super Admin"})
 		})
 
-		protected.GET("/dokter", middlewares.RoleBlockMiddleware("dokter"), func(c *gin.Context) {
-			c.HTML(http.StatusOK, "dokter.html", gin.H{"title": "Ruang Dokter"})
-		})
+		protected.GET("/dokter", middlewares.RoleBlockMiddleware("dokter"), doctorController.ShowDoctorDashboard)
 
 		protected.GET("/register-pasien", middlewares.RoleBlockMiddleware("superadmin", "resepsionis"), patientController.ShowRegisterPatient)
 		protected.POST("/register-pasien", middlewares.RoleBlockMiddleware("superadmin", "resepsionis"), patientController.ProcessRegisterPatient)

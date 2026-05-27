@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal h-screen flex flex-col">
+
+<nav class="bg-green-700 p-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center text-white">
+        <span class="font-bold text-xl tracking-wide">👨‍⚕️ Panel Dokter</span>
+        <div class="space-x-4">
+            <a href="/dashboard/" class="hover:underline text-sm">Kembali ke Dashboard Utama</a>
+            <a href="/logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mx-auto mt-8 px-4 flex-grow">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Daftar Antrean Pasien Hari Ini</h2>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                <tr>
+                    <th class="py-3 px-6 text-left">Tanggal</th>
+                    <th class="py-3 px-6 text-left">Nama Pasien</th>
+                    <th class="py-3 px-6 text-left">Keluhan</th>
+                    <th class="py-3 px-6 text-center">Status</th>
+                    <th class="py-3 px-6 text-center">Aksi</th>
+                </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm font-light">
+                {{ if not .appointments }}
+                <tr>
+                    <td colspan="5" class="py-8 text-center text-gray-500 italic">Tidak ada antrean pasien saat ini.</td>
+                </tr>
+                {{ else }}
+                {{ range .appointments }}
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="py-3 px-6 text-left whitespace-nowrap">{{ .Tanggal }}</td>
+                    <td class="py-3 px-6 text-left font-medium">{{ .User.Nama }}</td>
+                    <td class="py-3 px-6 text-left truncate max-w-xs">{{ .Keluhan }}</td>
+                    <td class="py-3 px-6 text-center">
+                        <span class="bg-yellow-200 text-yellow-700 py-1 px-3 rounded-full text-xs font-bold">Menunggu</span>
+                    </td>
+                    <td class="py-3 px-6 text-center">
+                        <a href="/dashboard/dokter/periksa/{{ .ID }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition shadow">Periksa Pasien</a>
+                    </td>
+                </tr>
+                {{ end }}
+                {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
