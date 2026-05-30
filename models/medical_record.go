@@ -9,7 +9,7 @@ import (
 type MedicalRecord struct {
 	ID            uint   `gorm:"primaryKey"`
 	AppointmentID uint   `gorm:"not null"`
-	PatientID     uint   `gorm:"not null"`
+	UserID        uint   `gorm:"not null"`
 	DokterID      uint   `gorm:"not null"`
 	Diagnosis     string `gorm:"type:text;not null"`
 	Tindakan      string `gorm:"type:text"`
@@ -20,6 +20,6 @@ type MedicalRecord struct {
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
 
 	Appointment Appointment `gorm:"foreignKey:AppointmentID"`
-	Patient     Patient     `gorm:"foreignKey:PatientID"`
+	User        User        `gorm:"foreignKey:UserID"`
 	Dokter      User        `gorm:"foreignKey:DokterID"`
 }

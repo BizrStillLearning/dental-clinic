@@ -29,17 +29,6 @@ func main() {
 	db := config.ConnectDB()
 
 	db.AutoMigrate(&models.User{}, &models.Patient{}, &models.Appointment{}, &models.MedicalRecord{})
-	
-	var superAdmin models.User
-	if err := db.Where("email = ?", "superadmin@gmail.com").First(&superAdmin).Error; err != nil {
-		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-		db.Create(&models.User{
-			Nama:     "Administrator Utama",
-			Email:    "superadmin@klinik.com",
-			Password: string(hashedPassword),
-			Role:     "superadmin",
-		})
-	}
 
 	seedUser(db, "Administrator Utama", "superadmin@gmail.com", "admin123", "superadmin")
 	seedUser(db, "dr. Budi Santoso", "dokter@klinik.com", "dokter123", "dokter")
@@ -55,6 +44,8 @@ func main() {
 	patientController := controllers.NewPatientController(db)
 	appointmentController := controllers.NewAppointmentController(db)
 	doctorController := controllers.NewDoctorController(db)
+	staffController := controllers.NewStaffController(db)
+	historyController := controllers.NewHistoryController(db)
 
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html", gin.H{"title": "Login E-Clinic"})
@@ -89,17 +80,24 @@ func main() {
 			})
 		})
 
-		protected.GET("/superadmin", middlewares.RoleBlockMiddleware("superadmin"), func(c *gin.Context) {
-			c.HTML(http.StatusOK, "admin.html", gin.H{"title": "Panel Super Admin"})
-		})
+		protected.GET("/superadmin/staff", middlewares.RoleBlockMiddleware("superadmin"), staffController.ShowStaffManagement)
+		protected.POST("/superadmin/staff", middlewares.RoleBlockMiddleware("superadmin"), staffController.ProcessAddStaff)
 
+		// Rute Dokter
 		protected.GET("/dokter", middlewares.RoleBlockMiddleware("dokter"), doctorController.ShowDoctorDashboard)
 
+		// Rute Pemeriksaan Medis
+		protected.GET("/dokter/periksa/:id", middlewares.RoleBlockMiddleware("dokter"), doctorController.ShowMedicalRecordForm)
+		protected.POST("/dokter/periksa/:id", middlewares.RoleBlockMiddleware("dokter"), doctorController.ProcessMedicalRecord)
+
+		// Rute Resepsionis & Pasien
 		protected.GET("/register-pasien", middlewares.RoleBlockMiddleware("superadmin", "resepsionis"), patientController.ShowRegisterPatient)
 		protected.POST("/register-pasien", middlewares.RoleBlockMiddleware("superadmin", "resepsionis"), patientController.ProcessRegisterPatient)
 
 		protected.GET("/buat-janji", middlewares.RoleBlockMiddleware("pasien"), appointmentController.ShowAppointmentForm)
 		protected.POST("/buat-janji", middlewares.RoleBlockMiddleware("pasien"), appointmentController.ProcessAppointment)
+
+		protected.GET("/riwayat", middlewares.RoleBlockMiddleware("pasien"), historyController.ShowPatientHistory)
 	}
 
 	r.Run(":8080")

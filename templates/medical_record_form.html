@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal min-h-screen flex flex-col">
+
+<nav class="bg-green-700 p-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center text-white">
+        <span class="font-bold text-xl tracking-wide">👨‍⚕️ Panel Dokter</span>
+        <a href="/dashboard/dokter" class="hover:underline text-sm">Batal & Kembali</a>
+    </div>
+</nav>
+
+<div class="container mx-auto mt-8 px-4 max-w-3xl flex-grow">
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
+        <h3 class="text-lg font-bold text-blue-800">Informasi Pasien</h3>
+        <p class="text-gray-700"><strong>Nama:</strong> {{ .appointment.User.Nama }}</p>
+        <p class="text-gray-700"><strong>Tanggal Antrean:</strong> {{ .appointment.Tanggal }}</p>
+        <p class="text-gray-700"><strong>Keluhan Pasien:</strong> <span class="italic">"{{ .appointment.Keluhan }}"</span></p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Input Rekam Medis (EMR)</h2>
+
+        <form action="/dashboard/dokter/periksa/{{ .appointment.ID }}" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Diagnosis Penyakit <span class="text-red-500">*</span></label>
+                <textarea name="diagnosis" rows="3" required placeholder="Contoh: Migrain akut..." class="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tindakan / Terapi</label>
+                <textarea name="tindakan" rows="2" placeholder="Contoh: Pemberian injeksi..." class="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Resep Obat</label>
+                <textarea name="resep_obat" rows="3" placeholder="Contoh: Paracetamol 500mg 3x1..." class="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"></textarea>
+            </div>
+
+            <div class="pt-4 flex space-x-4">
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 transition duration-300">
+                    Simpan Rekam Medis & Selesaikan Antrean
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
