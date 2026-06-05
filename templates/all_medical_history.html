@@ -14,12 +14,20 @@
     </div>
     <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
         <a href="/dashboard/" class="block px-4 py-3 rounded-lg hover:bg-slate-700 transition">🏠 Dashboard Utama</a>
-        <a href="/dashboard/dokter" class="block px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">🩺 Ruang Praktik</a>
-        <a href="/dashboard/semua-riwayat" class="block px-4 py-2 rounded hover:bg-slate-700 transition">🗂️ Rekam Medis</a>
+        {{ if eq .role "superadmin" }}
+        <a href="/dashboard/superadmin/staff" class="block px-4 py-2 rounded hover:bg-slate-700 transition">👥 Manajemen Staf</a>
+        <a href="/dashboard/semua-riwayat" class="block px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">🗂️ Seluruh Rekam Medis</a>
+        {{ end }}
+
+        {{ if eq .role "dokter" }}
+        <a href="/dashboard/dokter" class="block px-4 py-2 rounded hover:bg-slate-700 transition">🩺 Ruang Praktik</a>
+        <a href="/dashboard/semua-riwayat" class="block px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">🗂️ Rekam Medis</a>
+        {{ end }}
     </nav>
 </aside>
 
 <div class="flex-1 flex flex-col overflow-hidden">
+
     <header class="h-16 bg-white shadow flex items-center justify-between px-8 z-10">
         <h2 class="text-xl font-semibold text-gray-800">{{ .title }}</h2>
         <div class="flex items-center space-x-6">
@@ -30,36 +38,31 @@
 
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-8">
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📋 Daftar Antrean Pasien Hari Ini</h3>
-
+            <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📋 Riwayat Pemeriksaan Pasien</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white">
                     <thead class="bg-slate-50 text-slate-600 uppercase text-xs leading-normal border-b border-slate-200">
                     <tr>
                         <th class="py-3 px-6 text-left">Tanggal</th>
                         <th class="py-3 px-6 text-left">Nama Pasien</th>
-                        <th class="py-3 px-6 text-left">Keluhan</th>
-                        <th class="py-3 px-6 text-center">Status</th>
-                        <th class="py-3 px-6 text-center">Aksi</th>
+                        <th class="py-3 px-6 text-left">Dokter Pemeriksa</th>
+                        <th class="py-3 px-6 text-left">Diagnosis Utama</th>
+                        <th class="py-3 px-6 text-left">Resep Obat</th>
                     </tr>
                     </thead>
                     <tbody class="text-slate-600 text-sm font-light">
-                    {{ if not .appointments }}
+                    {{ if not .records }}
                     <tr>
-                        <td colspan="5" class="py-8 text-center text-slate-400 italic">Tidak ada antrean pasien saat ini.</td>
+                        <td colspan="5" class="py-8 text-center text-slate-400 italic">Belum ada data rekam medis di dalam sistem.</td>
                     </tr>
                     {{ else }}
-                    {{ range .appointments }}
+                    {{ range .records }}
                     <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                        <td class="py-3 px-6 text-left whitespace-nowrap font-medium">{{ .Tanggal }}</td>
-                        <td class="py-3 px-6 text-left font-bold text-slate-700">{{ .User.Nama }}</td>
-                        <td class="py-3 px-6 text-left truncate max-w-xs">{{ .Keluhan }}</td>
-                        <td class="py-3 px-6 text-center">
-                            <span class="bg-amber-100 text-amber-700 py-1 px-3 rounded-full text-xs font-bold uppercase">Menunggu</span>
-                        </td>
-                        <td class="py-3 px-6 text-center">
-                            <a href="/dashboard/dokter/periksa/{{ .ID }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition shadow-sm text-xs font-bold">Periksa Pasien</a>
-                        </td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap font-medium text-slate-700">{{ .Tanggal }}</td>
+                        <td class="py-3 px-6 text-left font-bold text-blue-700">{{ .User.Nama }}</td>
+                        <td class="py-3 px-6 text-left">dr. {{ .Dokter.Nama }}</td>
+                        <td class="py-3 px-6 text-left">{{ .Diagnosis }}</td>
+                        <td class="py-3 px-6 text-left bg-blue-50/50">{{ if .ResepObat }}{{ .ResepObat }}{{ else }}-{{ end }}</td>
                     </tr>
                     {{ end }}
                     {{ end }}
@@ -69,6 +72,6 @@
         </div>
     </main>
 </div>
+
 </body>
 </html>
-

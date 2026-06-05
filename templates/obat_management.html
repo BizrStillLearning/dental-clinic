@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex h-screen overflow-hidden">
+
+<aside class="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-20">
+    <div class="h-16 flex items-center justify-center font-bold text-2xl border-b border-slate-700 tracking-wider">🏥 E-Clinic</div>
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/dashboard/" class="block px-4 py-3 rounded-lg hover:bg-slate-700 transition">🏠 Dashboard Utama</a>
+        <a href="/dashboard/superadmin/staff" class="block px-4 py-2 rounded hover:bg-slate-700 transition">👥 Manajemen Staf</a>
+        <a href="/dashboard/superadmin/obat" class="block px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">💊 Inventaris Obat</a>
+        <a href="/dashboard/semua-riwayat" class="block px-4 py-2 rounded hover:bg-slate-700 transition">🗂️ Seluruh Rekam Medis</a>
+    </nav>
+</aside>
+
+<div class="flex-1 flex flex-col overflow-hidden">
+    <header class="h-16 bg-white shadow flex items-center justify-between px-8 z-10">
+        <h2 class="text-xl font-semibold text-gray-800">{{ .title }}</h2>
+        <div class="flex items-center space-x-6">
+            <span class="text-gray-600">Halo, <strong class="text-blue-700">{{ .nama }}</strong> (<span class="uppercase text-xs font-bold">{{ .role }}</span>)</span>
+            <a href="/logout" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-500 transition text-sm">Logout</a>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 h-fit border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">➕ Tambah Obat Baru</h3>
+                <form action="/dashboard/superadmin/obat" method="POST" class="space-y-4">
+                    <div><label class="block text-sm font-medium text-slate-700">Nama Obat</label><input type="text" name="nama" required class="w-full px-3 py-2 border rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Harga per Item (Rp)</label><input type="number" name="harga" required min="0" class="w-full px-3 py-2 border rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Jumlah Stok Awal</label><input type="number" name="stok" required min="1" class="w-full px-3 py-2 border rounded-md"></div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition">Simpan Obat</button>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 col-span-2 border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📋 Daftar Obat & Stok Apotek</h3>
+                <table class="min-w-full bg-white">
+                    <thead class="bg-slate-50 text-slate-600 uppercase text-xs border-b">
+                    <tr><th class="py-3 px-6 text-left">Nama Obat</th><th class="py-3 px-6 text-left">Harga</th><th class="py-3 px-6 text-center">Stok</th><th class="py-3 px-6 text-center">Aksi</th></tr>
+                    </thead>
+                    <tbody class="text-slate-600 text-sm">
+                    {{ range .obats }}
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="py-3 px-6 font-bold text-slate-700">{{ .Nama }}</td>
+                        <td class="py-3 px-6">Rp {{ .Harga }}</td>
+                        <td class="py-3 px-6 text-center font-mono font-bold {{ if lt .Stok 10 }}text-red-500{{ else }}text-emerald-500{{ end }}">{{ .Stok }}</td>
+                        <td class="py-3 px-6 text-center"><a href="/dashboard/superadmin/obat/delete/{{ .ID }}" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-red-600">Hapus</a></td>
+                    </tr>
+                    {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

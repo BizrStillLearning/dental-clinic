@@ -6,50 +6,63 @@
     <title>{{ .title }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal min-h-screen flex flex-col">
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex h-screen overflow-hidden">
 
-<nav class="bg-green-700 p-4 shadow-lg">
-    <div class="container mx-auto flex justify-between items-center text-white">
-        <span class="font-bold text-xl tracking-wide">👨‍⚕️ Panel Dokter</span>
-        <a href="/dashboard/dokter" class="hover:underline text-sm">Batal & Kembali</a>
-    </div>
-</nav>
+<div class="flex-1 flex flex-col w-full h-full">
+    <nav class="bg-slate-800 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center text-white">
+            <span class="font-bold text-xl tracking-wide">🩺 {{ .title }}</span>
+            <a href="/dashboard/dokter" class="hover:underline text-sm bg-slate-700 px-4 py-2 rounded-lg">Batal & Kembali</a>
+        </div>
+    </nav>
 
-<div class="container mx-auto mt-8 px-4 max-w-3xl flex-grow">
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
-        <h3 class="text-lg font-bold text-blue-800">Informasi Pasien</h3>
-        <p class="text-gray-700"><strong>Nama:</strong> {{ .appointment.User.Nama }}</p>
-        <p class="text-gray-700"><strong>Tanggal Antrean:</strong> {{ .appointment.Tanggal }}</p>
-        <p class="text-gray-700"><strong>Keluhan Pasien:</strong> <span class="italic">"{{ .appointment.Keluhan }}"</span></p>
-    </div>
+    <main class="flex-1 overflow-y-auto p-8 flex justify-center items-start">
+        <div class="bg-white rounded-lg shadow-md p-8 border border-gray-200 w-full max-w-3xl mt-4">
 
-    <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Input Rekam Medis (EMR)</h2>
-
-        <form action="/dashboard/dokter/periksa/{{ .appointment.ID }}" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Diagnosis Penyakit <span class="text-red-500">*</span></label>
-                <textarea name="diagnosis" rows="3" required placeholder="Contoh: Migrain akut..." class="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"></textarea>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
+                <p class="text-gray-700 text-sm mb-1"><strong>Nama Pasien:</strong> {{ .appointment.User.Nama }}</p>
+                <p class="text-gray-700 text-sm"><strong>Keluhan Awal:</strong> {{ .appointment.Keluhan }}</p>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tindakan / Terapi</label>
-                <textarea name="tindakan" rows="2" placeholder="Contoh: Pemberian injeksi..." class="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"></textarea>
-            </div>
+            <form action="/dashboard/dokter/periksa/{{ .appointment.ID }}" method="POST" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Diagnosis Medis</label>
+                    <textarea name="diagnosis" rows="3" required class="w-full px-4 py-3 border rounded-md"></textarea>
+                </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Resep Obat</label>
-                <textarea name="resep_obat" rows="3" placeholder="Contoh: Paracetamol 500mg 3x1..." class="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"></textarea>
-            </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Tindakan yang Dilakukan (Opsional)</label>
+                    <input type="text" name="tindakan" class="w-full px-4 py-3 border rounded-md">
+                </div>
 
-            <div class="pt-4 flex space-x-4">
-                <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 transition duration-300">
-                    Simpan Rekam Medis & Selesaikan Antrean
-                </button>
-            </div>
-        </form>
-    </div>
+                <div class="bg-slate-50 p-4 border rounded-md">
+                    <label class="block text-sm font-bold text-slate-700 mb-3 border-b pb-2">Pilih Resep Obat (Otomatis masuk tagihan Kasir)</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-48 overflow-y-auto p-2">
+                        {{ if not .obats }}
+                        <p class="text-sm text-red-500 italic">Stok semua obat sedang kosong di Apotek.</p>
+                        {{ else }}
+                        {{ range .obats }}
+                        <label class="flex items-center space-x-3 bg-white p-2 border rounded shadow-sm cursor-pointer hover:bg-blue-50 transition">
+                            <input type="checkbox" name="obat_ids" value="{{ .ID }}" class="form-checkbox h-5 w-5 text-blue-600">
+                            <div>
+                                <span class="block text-sm font-bold text-gray-800">{{ .Nama }}</span>
+                                <span class="block text-xs text-emerald-600 font-mono">Rp {{ .Harga }} | Stok: {{ .Stok }}</span>
+                            </div>
+                        </label>
+                        {{ end }}
+                        {{ end }}
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition shadow-md">
+                        Simpan Rekam Medis & Teruskan ke Kasir
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </main>
 </div>
-
 </body>
 </html>

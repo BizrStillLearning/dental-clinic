@@ -18,24 +18,33 @@ func NewPatientController(db *gorm.DB) *PatientController {
 	return &PatientController{DB: db}
 }
 
-func (pc *PatientController) ShowRegisterPatient(c *gin.Context) {
+func (pc *PatientController) ShowPatientRegister(c *gin.Context) {
+	userID, _ := c.Get("userID")
 	role, _ := c.Get("userRole")
+
+	var user models.User
+	pc.DB.First(&user, userID)
+
 	c.HTML(http.StatusOK, "patient_register.html", gin.H{
 		"title": "Pendaftaran Pasien Baru",
+		"nama":  user.Nama,
 		"role":  role,
 	})
 }
 
-// Memproses data form pendaftaran pasien
 func (pc *PatientController) ProcessRegisterPatient(c *gin.Context) {
+	userID, _ := c.Get("userID")
 	role, _ := c.Get("userRole")
 
-	namaLengkap := c.PostForm("nama_lengkap")
+	var user models.User
+	pc.DB.First(&user, userID)
+
+	namaLengkap := c.PostForm("nama")
 	nik := c.PostForm("nik")
 	tanggalLahir := c.PostForm("tanggal_lahir")
 	alamat := c.PostForm("alamat")
-	noHp := c.PostForm("no_hp")
-	riwayatAlergi := c.PostForm("riwayat_alergi")
+	noHp := c.PostForm("nomor_hp")
+	riwayatAlergi := c.PostForm("alergi")
 
 	nomorRM := fmt.Sprintf("RM-%d", time.Now().Unix())
 
@@ -51,14 +60,18 @@ func (pc *PatientController) ProcessRegisterPatient(c *gin.Context) {
 
 	if err := pc.DB.Create(&patient).Error; err != nil {
 		c.HTML(http.StatusInternalServerError, "patient_register.html", gin.H{
-			"error": "Gagal mendaftarkan pasien. NIK mungkin sudah digunakan.",
+			"title": "Pendaftaran Pasien Baru",
+			"nama":  user.Nama,
 			"role":  role,
+			"error": "Gagal mendaftarkan pasien. NIK mungkin sudah digunakan.",
 		})
 		return
 	}
 
 	c.HTML(http.StatusOK, "patient_register.html", gin.H{
-		"success": "Pasien berhasil didaftarkan dengan Nomor RM: " + nomorRM,
+		"title":   "Pendaftaran Pasien Baru",
+		"nama":    user.Nama,
 		"role":    role,
+		"success": "Pasien berhasil didaftarkan dengan Nomor RM: " + nomorRM,
 	})
 }

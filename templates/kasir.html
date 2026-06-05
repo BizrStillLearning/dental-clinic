@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex h-screen overflow-hidden">
+
+<aside class="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-20">
+    <div class="h-16 flex items-center justify-center font-bold text-2xl border-b border-slate-700 tracking-wider">🏥 E-Clinic</div>
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/dashboard/" class="block px-4 py-3 rounded-lg hover:bg-slate-700 transition">🏠 Dashboard Utama</a>
+        <div class="pt-4 pb-2"><span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Menu Navigasi</span></div>
+        <a href="/dashboard/kasir" class="block px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">💳 Meja Kasir</a>
+        <a href="/dashboard/register-pasien" class="block px-4 py-2 rounded hover:bg-slate-700 transition">📝 Pendaftaran Pasien</a>
+    </nav>
+</aside>
+
+<div class="flex-1 flex flex-col overflow-hidden">
+    <header class="h-16 bg-white shadow flex items-center justify-between px-8 z-10">
+        <h2 class="text-xl font-semibold text-gray-800">{{ .title }}</h2>
+        <div class="flex items-center space-x-6">
+            <span class="text-gray-600">Halo, <strong class="text-blue-700">{{ .nama }}</strong> (<span class="uppercase text-xs font-bold">{{ .role }}</span>)</span>
+            <a href="/logout" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-500 transition text-sm">Logout</a>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-8">
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">💳 Daftar Tagihan Belum Dibayar</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-slate-50 text-slate-600 uppercase text-xs border-b">
+                    <tr>
+                        <th class="py-3 px-6 text-left">Tgl Periksa</th>
+                        <th class="py-3 px-6 text-left">Nama Pasien</th>
+                        <th class="py-3 px-6 text-left">Dokter Jaga</th>
+                        <th class="py-3 px-6 text-center">Status</th>
+                        <th class="py-3 px-6 text-center">Aksi</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-slate-600 text-sm">
+                    {{ if not .transactions }}
+                    <tr><td colspan="5" class="py-8 text-center text-slate-400 italic">Tidak ada antrean pembayaran saat ini.</td></tr>
+                    {{ else }}
+                    {{ range .transactions }}
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                        <td class="py-3 px-6 text-left font-medium">{{ .Appointment.Tanggal }}</td>
+                        <td class="py-3 px-6 text-left font-bold text-slate-700">{{ .Appointment.User.Nama }}</td>
+                        <td class="py-3 px-6 text-left">dr. {{ .Appointment.Dokter.Nama }}</td>
+                        <td class="py-3 px-6 text-center"><span class="bg-amber-100 text-amber-700 py-1 px-3 rounded-full text-xs font-bold">Belum Lunas</span></td>
+                        <td class="py-3 px-6 text-center">
+                            <a href="/dashboard/kasir/bayar/{{ .ID }}" class="bg-emerald-500 text-white px-4 py-2 rounded font-bold hover:bg-emerald-600 transition shadow-sm text-xs">Buat Tagihan</a>
+                        </td>
+                    </tr>
+                    {{ end }}
+                    {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

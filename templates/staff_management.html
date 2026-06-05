@@ -6,66 +6,100 @@
     <title>{{ .title }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal h-screen flex flex-col">
-<nav class="bg-purple-800 p-4 shadow-lg">
-    <div class="container mx-auto flex justify-between items-center text-white">
-        <span class="font-bold text-xl tracking-wide">👑 Panel Super Admin</span>
-        <a href="/dashboard/" class="hover:underline text-sm">Kembali ke Dashboard</a>
-    </div>
-</nav>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex h-screen overflow-hidden">
 
-<div class="container mx-auto mt-8 px-4 flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-white rounded-lg shadow-md p-6 h-fit border border-gray-200">
-        <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Tambah Staf Baru</h3>
-        <form action="/dashboard/superadmin/staff" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                <input type="text" name="nama" required class="w-full px-3 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" required class="w-full px-3 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Password Sementara</label>
-                <input type="password" name="password" required class="w-full px-3 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Pilih Jabatan</label>
-                <select name="role" required class="w-full px-3 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500">
-                    <option value="dokter">Dokter</option>
-                    <option value="resepsionis">Resepsionis</option>
-                </select>
-            </div>
-            <button type="submit" class="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-purple-700">Daftarkan Staf</button>
-        </form>
+<aside class="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-20">
+    <div class="h-16 flex items-center justify-center font-bold text-2xl border-b border-slate-700 tracking-wider">
+        🏥 E-Clinic
     </div>
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/dashboard/" class="block px-4 py-3 rounded-lg hover:bg-slate-700 transition">🏠 Dashboard Utama</a>
+        {{ if eq .role "superadmin" }}
+        <a href="/dashboard/superadmin/staff" class="block px-4 py-2 rounded bg-blue-600 transition">👥 Manajemen Staf</a>
+        <a href="/dashboard/semua-riwayat" class="block px-4 py-2 rounded hover:bg-slate-700 transition">🗂️ Seluruh Rekam Medis</a>
+        {{ end }}
+        {{ if eq .role "dokter" }}
+        <a href="/dashboard/dokter" class="block px-4 py-2 rounded hover:bg-slate-700 transition">🩺 Ruang Praktik</a>
+        <a href="/dashboard/semua-riwayat" class="block px-4 py-2 rounded hover:bg-slate-700 transition">🗂️ Rekam Medis</a>
+        {{ end }}
+        {{ if eq .role "resepsionis" }}
+        <a href="/dashboard/register-pasien" class="block px-4 py-2 rounded hover:bg-slate-700 transition">📝 Pendaftaran Pasien</a>
+        {{ end }}
+        {{ if eq .role "pasien" }}
+        <a href="/dashboard/buat-janji" class="block px-4 py-2 rounded hover:bg-slate-700 transition">📅 Buat Janji Temu</a>
+        <a href="/dashboard/riwayat" class="block px-4 py-2 rounded hover:bg-slate-700 transition">📂 Riwayat Medis Saya</a>
+        {{ end }}
+    </nav>
+</aside>
 
-    <div class="bg-white rounded-lg shadow-md p-6 col-span-2 border border-gray-200">
-        <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Daftar Staf Aktif</h3>
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border">
-                <thead class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                <tr>
-                    <th class="py-3 px-6 text-left">Nama</th>
-                    <th class="py-3 px-6 text-left">Email</th>
-                    <th class="py-3 px-6 text-center">Jabatan</th>
-                </tr>
-                </thead>
-                <tbody class="text-gray-600 text-sm font-light">
-                {{ range .staffs }}
-                <tr class="border-b border-gray-200 hover:bg-gray-50">
-                    <td class="py-3 px-6 text-left font-medium">{{ .Nama }}</td>
-                    <td class="py-3 px-6 text-left">{{ .Email }}</td>
-                    <td class="py-3 px-6 text-center">
-                        <span class="bg-purple-100 text-purple-700 py-1 px-3 rounded-full text-xs font-bold uppercase">{{ .Role }}</span>
-                    </td>
-                </tr>
-                {{ end }}
-                </tbody>
-            </table>
+<div class="flex-1 flex flex-col overflow-hidden">
+    <header class="h-16 bg-white shadow flex items-center justify-between px-8 z-10">
+        <h2 class="text-xl font-semibold text-gray-800">{{ .title }}</h2>
+        <div class="flex items-center space-x-6">
+            <span class="text-gray-600">Halo, <strong class="text-blue-700">{{ .nama }}</strong> (<span class="uppercase text-xs font-bold">{{ .role }}</span>)</span>
+            <a href="/logout" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-500 transition font-medium text-sm">Logout</a>
         </div>
-    </div>
+    </header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 h-fit border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">➕ Tambah Staf Baru</h3>
+                <form action="/dashboard/superadmin/staff" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Nama Lengkap</label>
+                        <input type="text" name="nama" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Email</label>
+                        <input type="email" name="email" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Password Sementara</label>
+                        <input type="password" name="password" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Pilih Jabatan</label>
+                        <select name="role" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-blue-500">
+                            <option value="dokter">Dokter</option>
+                            <option value="resepsionis">Resepsionis</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition">Daftarkan Staf</button>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 col-span-2 border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📋 Daftar Staf Aktif</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-6 text-left">Nama</th>
+                            <th class="py-3 px-6 text-left">Email</th>
+                            <th class="py-3 px-6 text-center">Jabatan</th>
+                            <th class="py-3 px-6 text-center">Aksi</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-slate-600 text-sm">
+                        {{ range .staffs }}
+                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                            <td class="py-3 px-6 text-left font-medium text-slate-700">{{ .Nama }}</td>
+                            <td class="py-3 px-6 text-left">{{ .Email }}</td>
+                            <td class="py-3 px-6 text-center">
+                                <span class="bg-slate-100 text-slate-700 py-1 px-3 rounded-full text-xs font-bold uppercase">{{ .Role }}</span>
+                            </td>
+                            <td class="py-3 px-6 text-center">
+                                <a href="/dashboard/superadmin/staff/delete/{{ .ID }}" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-red-600 transition" onclick="return confirm('Yakin ingin menghapus staf ini?');">Hapus</a>
+                            </td>
+                        </tr>
+                        {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
 </body>
 </html>

@@ -6,51 +6,84 @@
     <title>{{ .title }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal min-h-screen flex flex-col">
-<nav class="bg-blue-800 p-4 shadow-lg">
-    <div class="container mx-auto flex justify-between items-center text-white">
-        <span class="font-bold text-xl tracking-wide">🏥 Rekam Medis Saya</span>
-        <a href="/dashboard/" class="hover:underline text-sm">Kembali ke Dashboard</a>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex h-screen overflow-hidden">
+
+<aside class="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-20">
+    <div class="h-16 flex items-center justify-center font-bold text-2xl border-b border-slate-700 tracking-wider">
+        🏥 E-Clinic
     </div>
-</nav>
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/dashboard/" class="block px-4 py-3 rounded-lg hover:bg-slate-700 transition">🏠 Dashboard Utama</a>
+        <a href="/dashboard/buat-janji" class="block px-4 py-2 rounded hover:bg-slate-700 transition">📅 Buat Janji Temu</a>
+        <a href="/dashboard/riwayat" class="block px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">📂 Riwayat Medis Saya</a>
+    </nav>
+</aside>
 
-<div class="container mx-auto mt-8 px-4 flex-grow">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Riwayat Pemeriksaan & Pengobatan</h2>
+<div class="flex-1 flex flex-col overflow-hidden">
+    <header class="h-16 bg-white shadow flex items-center justify-between px-8 z-10">
+        <h2 class="text-xl font-semibold text-gray-800">{{ .title }}</h2>
+        <div class="flex items-center space-x-6">
+            <a href="/logout" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-500 hover:text-white transition font-medium text-sm">Logout</a>
+        </div>
+    </header>
 
-    {{ if not .records }}
-    <div class="bg-white p-8 rounded-lg shadow border text-center">
-        <p class="text-gray-500 italic">Anda belum memiliki riwayat pemeriksaan.</p>
-    </div>
-    {{ else }}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{ range .records }}
-        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 relative">
-            <span class="absolute top-4 right-4 bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs font-bold">Selesai</span>
-            <p class="text-sm text-gray-500 mb-2">Tanggal: {{ .Tanggal }}</p>
-            <h3 class="text-xl font-bold text-blue-800 mb-1">dr. {{ .Dokter.Nama }}</h3>
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-8">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6">Riwayat Pemeriksaan & Tagihan</h2>
 
-            <div class="mt-4 space-y-3">
-                <div>
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Keluhan Awal</span>
-                    <p class="text-gray-700 bg-gray-50 p-2 rounded border">{{ .Appointment.Keluhan }}</p>
+        {{ if not .views }}
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 text-center">
+            <p class="text-slate-500 italic">Anda belum memiliki riwayat pemeriksaan.</p>
+        </div>
+        {{ else }}
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {{ range .views }}
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative flex flex-col">
+
+                {{ if eq .Trx.Status "lunas" }}
+                <span class="absolute top-4 right-4 bg-emerald-100 text-emerald-800 py-1 px-3 rounded-full text-xs font-bold border border-emerald-200">LUNAS</span>
+                {{ else if eq .Trx.Status "menunggak" }}
+                <span class="absolute top-4 right-4 bg-red-100 text-red-800 py-1 px-3 rounded-full text-xs font-bold border border-red-200 animate-pulse">BELUM BAYAR (PIUTANG)</span>
+                {{ else }}
+                <span class="absolute top-4 right-4 bg-amber-100 text-amber-800 py-1 px-3 rounded-full text-xs font-bold border border-amber-200">MENUNGGU PEMBAYARAN</span>
+                {{ end }}
+
+                <p class="text-sm text-slate-500 mb-2">Tanggal Berobat: <span class="font-semibold">{{ .Record.Tanggal }}</span></p>
+                <h3 class="text-xl font-bold text-blue-800 mb-4 pb-2 border-b">dr. {{ .Record.Dokter.Nama }}</h3>
+
+                <div class="space-y-3 flex-grow mb-6">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Diagnosis Utama</span>
+                        <p class="text-slate-800 font-medium">{{ .Record.Diagnosis }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Resep Obat</span>
+                        <p class="text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">{{ if .Record.ResepObat }}{{ .Record.ResepObat }}{{ else }}-{{ end }}</p>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Diagnosis</span>
-                    <p class="text-gray-800 font-medium">{{ .Diagnosis }}</p>
+
+                <div class="bg-slate-800 text-white p-4 rounded-lg shadow-inner">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-600 pb-1">Rincian Tagihan</h4>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm text-slate-300">Total Biaya</span>
+                        <span class="font-mono text-lg font-bold text-emerald-400">Rp {{ .Trx.TotalBiaya }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-400">Metode Bayar</span>
+                        <span>{{ if .Trx.MetodePembayaran }}{{ .Trx.MetodePembayaran }}{{ else }}-{{ end }}</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tindakan</span>
-                    <p class="text-gray-700">{{ if .Tindakan }}{{ .Tindakan }}{{ else }}-{{ end }}</p>
+                <div class="mt-4 flex justify-end">
+                    <a href="/dashboard/transaksi/pdf/{{ .Trx.ID }}" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition flex items-center gap-1">
+                        📄 Unduh Struk PDF
+                    </a>
                 </div>
-                <div>
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Resep Obat</span>
-                    <p class="text-gray-700 bg-blue-50 p-2 rounded border border-blue-100">{{ if .ResepObat }}{{ .ResepObat }}{{ else }}-{{ end }}</p>
-                </div>
+
             </div>
+            {{ end }}
         </div>
         {{ end }}
-    </div>
-    {{ end }}
+    </main>
 </div>
 </body>
 </html>
+

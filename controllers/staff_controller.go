@@ -18,11 +18,19 @@ func NewStaffController(db *gorm.DB) *StaffController {
 }
 
 func (sc *StaffController) ShowStaffManagement(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	role, _ := c.Get("userRole")
+
+	var user models.User
+	sc.DB.First(&user, userID)
+
 	var staffs []models.User
 	sc.DB.Where("role IN ?", []string{"dokter", "resepsionis"}).Find(&staffs)
 
 	c.HTML(http.StatusOK, "staff_management.html", gin.H{
 		"title":  "Manajemen Staf Klinik",
+		"nama":   user.Nama,
+		"role":   role,
 		"staffs": staffs,
 	})
 }
@@ -43,6 +51,13 @@ func (sc *StaffController) ProcessAddStaff(c *gin.Context) {
 	}
 
 	sc.DB.Create(&user)
+
+	c.Redirect(http.StatusSeeOther, "/dashboard/superadmin/staff")
+}
+
+func (sc *StaffController) DeleteStaff(c *gin.Context) {
+	id := c.Param("id")
+	sc.DB.Delete(&models.User{}, id)
 
 	c.Redirect(http.StatusSeeOther, "/dashboard/superadmin/staff")
 }
